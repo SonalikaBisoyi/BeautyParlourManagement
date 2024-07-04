@@ -1,0 +1,163 @@
+package com.beautyparlour.controller;
+
+import com.beautyparlour.dao.AppointmentDAO;
+import com.beautyparlour.model.Appointment;
+import com.beautyparlour.model.User;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.List;
+
+@WebServlet("/appointments/*")
+public class AppointmentServlet extends HttpServlet {
+    private AppointmentDAO appointmentDAO;
+
+    public void init() {
+        Connection connection = (Connection) getServletContext().getAttribute("dbConnection"); // Assuming you store connection in ServletContext
+        appointmentDAO = new AppointmentDAO(connection);
+    }
+
+
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String action = request.getPathInfo();
+        HttpSession session = request.getSession();
+        User user = (User) session.getAttribute("user");
+
+        switch (action) {
+            case "/create":
+                createAppointment(request, response, user);
+                break;
+            case "/update":
+                updateAppointment(request, response);
+                break;
+            case "/cancel":
+                cancelAppointment(request, response);
+                break;
+            default:
+                response.sendError(HttpServletResponse.SC_NOT_FOUND);
+                break;
+        }
+    }
+
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String action = request.getPathInfo();
+        HttpSession session = request.getSession();
+        User user = (User) session.getAttribute("user");
+
+        switch (action) {
+            case "/new":
+                showNewForm(request, response);
+                break;
+            case "/edit":
+                showEditForm(request, response);
+                break;
+            case "/list":
+                listAppointments(request, response, user);
+                break;
+            default:
+                response.sendError(HttpServletResponse.SC_NOT_FOUND);
+                break;
+        }
+    }
+
+    private void createAppointment(HttpServletRequest request, HttpServletResponse response, User user) throws ServletException, IOException {
+        // Retrieve form data
+        String customerName = request.getParameter("customerName");
+        String service = request.getParameter("service");
+        Timestamp appointmentDate = Timestamp.valueOf(request.getParameter("appointmentDate"));
+        String notes = request.getParameter("notes");
+        String status = "Active"; // Set default status
+        Timestamp createdAt = new Timestamp(System.currentTimeMillis());
+        // Create Appointment object
+        Appointment newAppointment = new Appointment(customerName, service, appointmentDate, status, notes,createdAt);
+
+        try {
+            // Add appointment to database
+            appointmentDAO.addAppointment(newAppointment);
+            response.sendRedirect(request.getContextPath() + "/appointments/list");
+        } catch (SQLException e) {
+            throw new ServletException("Error creating new appointment", e);
+        }
+    }
+
+    private void updateAppointment(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        // Retrieve form data
+        int appointmentId = Integer.parseInt(request.getParameter("appointmentId"));
+        String customerName = request.getParameter("customerName");
+        String service = request.getParameter("service");
+        Timestamp appointmentDate = Timestamp.valueOf(request.getParameter("appointmentDate"));
+        String notes = request.getParameter("notes");
+        String status = request.getParameter("status");
+        Timestamp createdAt = Timestamp.valueOf(request.getParameter("createdAt")); // Assuming you can retrieve createdAt from the form
+
+        // Create Appointment object
+        Appointment appointment = new Appointment(appointmentId, customerName, service, appointmentDate, status, notes, createdAt);
+
+        try {
+            // Update appointment in database
+            appointmentDAO.updateAppointment(appointment);
+            response.sendRedirect(request.getContextPath() + "/appointments/list");
+        } catch (SQLException e) {
+            throw new ServletException("Error updating appointment", e);
+        }
+    }
+
+    private void cancelAppointment(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        int appointmentId = Integer.parseInt(request.getParameter("appointmentId"));
+
+        try {
+            // Cancel appointment in database
+            appointmentDAO.cancelAppointment(appointmentId);
+            response.sendRedirect(request.getContextPath() + "/appointments/list");
+        } catch (SQLException e) {
+            throw new ServletException("Error canceling appointment", e);
+        }
+    }
+
+    private void showNewForm(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        // Forward to JSP for creating new appointment
+        request.getRequestDispatcher("/adm/newAppointment.jsp").forward(request, response);
+    }
+
+    private void showEditForm(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        int appointmentId = Integer.parseInt(request.getParameter("appointmentId"));
+
+        try {
+            Appointment existingAppointment = appointmentDAO.getAppointmentById(appointmentId);
+            request.setAttribute("appointment", existingAppointment);
+            request.getRequestDispatcher("/adm/editAppointment.jsp").forward(request, response);
+        } catch (SQLException e) {
+            throw new ServletException("Error retrieving appointment for editing", e);
+        }
+    }
+
+    private void listAppointments(HttpServletRequest request, HttpServletResponse response, User user) throws ServletException, IOException {
+        try {
+            List<Appointment> appointments;
+
+            if (user.getUsername().equals("admin") && user.getPassword().equals("admin123")) {
+                // Admin can see all appointments
+                appointments = appointmentDAO.getAllAppointments();
+            } else {
+                // Non-admin user can only see their own appointments
+                appointments = appointmentDAO.getAppointmentsByUser(user.getUserId());
+            }
+            
+            request.setAttribute("appointments", appointments);
+            request.getRequestDispatcher("/adm/appointmentList.jsp").forward(request, response);
+        } catch (SQLException e) {
+            throw new ServletException("Error listing appointments", e);
+        }
+    }
+
+
+}

@@ -1,0 +1,128 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Manage Appointments</title>
+    <!-- Include any necessary CSS or JavaScript files here -->
+    <style>
+        /* Your CSS styles here */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .form-container {
+            margin-bottom: 20px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .edit-delete-links {
+            display: inline-block;
+            margin-right: 5px;
+        }
+        .edit-delete-links a {
+            text-decoration: none;
+            padding: 2px 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #f2f2f2;
+            color: #333;
+        }
+        .edit-delete-links a:hover {
+            background-color: #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Manage Appointments</h1>
+        
+        <!-- Form to add new appointment -->
+        <div class="form-container">
+            <h2>Add New Appointment</h2>
+            <form action="${pageContext.request.contextPath}/admin/addAppointment" method="POST">
+                <label for="customerName">Customer Name:</label>
+                <input type="text" id="customerName" name="customerName" required><br><br>
+                
+                <label for="service">Service:</label>
+                <input type="text" id="service" name="service" required><br><br>
+                
+                <label for="staff">Staff:</label>
+                <input type="text" id="staff" name="staff" required><br><br>
+                
+                <label for="appointmentDate">Appointment Date:</label>
+                <input type="datetime-local" id="appointmentDate" name="appointmentDate" required><br><br>
+                
+                <input type="submit" value="Add Appointment">
+            </form>
+        </div>
+        
+        <!-- Display existing appointments -->
+        <h2>Existing Appointments</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Appointment ID</th>
+                    <th>Customer Name</th>
+                    <th>Service</th>
+                    <th>Staff</th>
+                    <th>Appointment Date</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Use JSTL to iterate over appointments from backend -->
+                <c:forEach var="appointment" items="${appointments}">
+                    <tr>
+                        <td>${appointment.appointmentId}</td>
+                        <td>${appointment.customerName}</td>
+                        <td>${appointment.service}</td>
+                        <td>${appointment.staff}</td>
+                        <td>${appointment.appointmentDate}</td>
+                        <td>
+                            <div class="edit-delete-links">
+                                <a href="${pageContext.request.contextPath}/admin/editAppointment?id=${appointment.appointmentId}">Edit</a>
+                            </div>
+                            <div class="edit-delete-links">
+                                <a href="${pageContext.request.contextPath}/admin/deleteAppointment?id=${appointment.appointmentId}">Delete</a>
+                            </div>
+                        </td>
+                    </tr>
+                </c:forEach>
+            </tbody>
+        </table>
+        
+        <!-- Additional content or links as needed -->
+    </div>
+</body>
+</html>

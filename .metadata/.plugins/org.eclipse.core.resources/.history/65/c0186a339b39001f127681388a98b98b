@@ -1,0 +1,106 @@
+package com.beautyparlour.controller;
+
+import com.beautyparlour.dao.AppointmentsDAO;
+import com.beautyparlour.model.Appointments;
+import com.beautyparlour.util.DatabaseUtil;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.List;
+
+@WebServlet(name = "AppointmentsServlet", urlPatterns = {"/admin/appointments/*", "/user/appointments/*"})
+public class AppointmentsServlet extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+    private AppointmentsDAO appointmentsDAO;
+
+    @Override
+    public void init() throws ServletException {
+        super.init();
+        try {
+            Connection connection = DatabaseUtil.getConnection();
+            appointmentsDAO = new AppointmentsDAO(connection);
+        } catch (SQLException e) {
+            throw new ServletException("Error initializing database connection", e);
+        }
+    }
+
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String path = request.getServletPath() + request.getPathInfo();
+
+        switch (path) {
+            case "/admin/appointments/list":
+                listAppointments(request, response);
+                break;
+            case "/admin/appointments/add":
+                // Forward to add appointment form for admin
+                break;
+            case "/user/appointments/add":
+                // Forward to add appointment form for user
+                break;
+            default:
+                response.sendError(HttpServletResponse.SC_NOT_FOUND);
+                break;
+        }
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String path = request.getServletPath() + request.getPathInfo();
+
+        switch (path) {
+            case "/admin/appointments/add":
+                addAppointment(request, response);
+                break;
+            case "/user/appointments/add":
+                addAppointment(request, response);
+                break;
+            default:
+                response.sendError(HttpServletResponse.SC_NOT_FOUND);
+                break;
+        }
+    }
+
+    private void listAppointments(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        try {
+            List<Appointments> appointments = appointmentsDAO.getAllAppointments();
+            request.setAttribute("appointments", appointments);
+            request.getRequestDispatcher("/admin/manageAppointments.jsp").forward(request, response);
+        } catch (SQLException e) {
+            throw new ServletException("Error fetching appointments", e);
+        }
+    }
+
+    private void addAppointment(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String customerName = request.getParameter("customerName");
+        String service = request.getParameter("service");
+        String staff = request.getParameter("staff");
+        Timestamp appointmentDate = Timestamp.valueOf(request.getParameter("appointmentDate"));
+        String status = request.getParameter("status");
+        String notes = request.getParameter("notes");
+
+        Appointments newAppointment = new Appointments(customerName, service, staff, appointmentDate, status, notes);
+        try {
+            appointmentsDAO.addAppointment(newAppointment);
+            if (request.getServletPath().equals("/admin/appointments")) {
+                response.sendRedirect(request.getContextPath() + "/admin/appointments/list");
+            } else if (request.getServletPath().equals("/user/appointments")) {
+                response.sendRedirect(request.getContextPath() + "/user/dashboard.jsp");
+            }
+        } catch (SQLException e) {
+            throw new ServletException("Error adding appointment", e);
+        }
+    }
+}

@@ -1,0 +1,71 @@
+package com.beautyparlour.dao;
+
+import com.beautyparlour.model.Appointment;
+import com.beautyparlour.util.DatabaseUtil;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
+
+public class AppointmentsDAO {
+    private Connection connection;
+
+    public AppointmentsDAO(Connection connection) {
+        this.connection = connection;
+    }
+
+    // Method to add a new appointment
+    public void addAppointment(Appointment appointment) throws SQLException {
+        String query = "INSERT INTO appointments (customer_name, service, staff, appointment_date, status, notes) " +
+                       "VALUES (?, ?, ?, ?, ?, ?)";
+        try (PreparedStatement statement = connection.prepareStatement(query, PreparedStatement.RETURN_GENERATED_KEYS)) {
+            statement.setString(1, appointment.getCustomerName());
+            statement.setString(2, appointment.getService());
+            statement.setString(3, appointment.getStaff());
+            statement.setTimestamp(4, appointment.getAppointmentDate());
+            statement.setString(5, appointment.getStatus());
+            statement.setString(6, appointment.getNotes());
+
+            statement.executeUpdate();
+
+            // Get auto-generated keys (if any)
+            ResultSet generatedKeys = statement.getGeneratedKeys();
+            if (generatedKeys.next()) {
+                int appointmentId = generatedKeys.getInt(1);
+                appointment.setAppointmentId(appointmentId);  // Set the generated appointment ID
+            }
+        }
+    }
+
+    // Method to get all appointments
+    public List<Appointment> getAllAppointments() throws SQLException {
+        List<Appointment> appointments = new ArrayList<>();
+        String query = "SELECT * FROM appointments";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                Appointment appointment = extractAppointmentFromResultSet(resultSet);
+                appointments.add(appointment);
+            }
+        }
+        return appointments;
+    }
+
+    // Method to extract appointment details from ResultSet
+    private Appointment extractAppointmentFromResultSet(ResultSet resultSet) throws SQLException {
+        Appointment appointment = new Appointment();
+        appointment.setAppointmentId(resultSet.getInt("appointment_id"));
+        appointment.setCustomerName(resultSet.getString("customer_name"));
+        appointment.setService(resultSet.getString("service"));
+        appointment.setStaff(resultSet.getString("staff"));
+        appointment.setAppointmentDate(resultSet.getTimestamp("appointment_date"));
+        appointment.setStatus(resultSet.getString("status"));
+        appointment.setNotes(resultSet.getString("notes"));
+        appointment.setCreatedAt(resultSet.getTimestamp("created_at"));
+        return appointment;
+    }
+}

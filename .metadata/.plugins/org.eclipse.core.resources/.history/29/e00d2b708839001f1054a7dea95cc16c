@@ -1,0 +1,98 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="java.util.List" %>
+<%@ page import="com.beautyparlour.model.Staff" %>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Manage Staff - Admin Dashboard</title>
+    <!-- Include any necessary CSS or JavaScript files here -->
+    <style>
+        /* Your CSS styles here */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .action-links a {
+            margin-right: 10px;
+            text-decoration: none;
+            padding: 5px 10px;
+            background-color: #007bff;
+            color: #fff;
+            border-radius: 4px;
+        }
+        .action-links a:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Manage Staff</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Position</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% List<com.beautyparlour.model.Staff> staffList = (List<com.beautyparlour.model.Staff>) request.getAttribute("staffList"); %>
+                <% if (staffList != null && !staffList.isEmpty()) { %>
+                    <% for (com.beautyparlour.model.Staff staff : staffList) { %>
+                        <tr>
+                            <td><%= staff.getStaffId() %></td>
+                            <td><%= staff.getFirstName() + " " + staff.getLastName() %></td>
+                            <td><%= staff.getEmail() %></td>
+                            <td><%= staff.getPhone() %></td>
+                            <td><%= staff.getPosition() %></td>
+                            <td class="action-links">
+                                <a href="<%= request.getContextPath() %>/admin/staff/edit?staffId=<%= staff.getStaffId() %>">Edit</a>
+                                <a href="<%= request.getContextPath() %>/admin/staff/delete?staffId=<%= staff.getStaffId() %>" onclick="return confirm('Are you sure you want to delete <%= staff.getFirstName() %> <%= staff.getLastName() %> ?')">Delete</a>
+                            </td>
+                        </tr>
+                    <% } %>
+                <% } else { %>
+                    <tr>
+                        <td colspan="6" style="text-align: center;">No staff members found.</td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+        <div style="text-align: center; margin-top: 20px;">
+            <a href="<%= request.getContextPath() %>/admin/staff/new" style="padding: 10px 20px; background-color: #28a745; color: #fff; text-decoration: none; border-radius: 4px;">Add New Staff</a>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,149 @@
+package com.beautyparlour.dao;
+
+import com.beautyparlour.model.Appointment;
+
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
+public class AppointmentDAO {
+
+    private String jdbcURL;
+    private String jdbcUsername;
+    private String jdbcPassword;
+    private Connection jdbcConnection;
+
+    public AppointmentDAO(String jdbcURL, String jdbcUsername, String jdbcPassword) {
+        this.jdbcURL = jdbcURL;
+        this.jdbcUsername = jdbcUsername;
+        this.jdbcPassword = jdbcPassword;
+    }
+
+    // Establish Connection
+    protected void connect() throws SQLException {
+        if (jdbcConnection == null || jdbcConnection.isClosed()) {
+            try {
+                Class.forName("com.mysql.cj.jdbc.Driver");
+            } catch (ClassNotFoundException e) {
+                throw new SQLException(e);
+            }
+            jdbcConnection = DriverManager.getConnection(jdbcURL, jdbcUsername, jdbcPassword);
+        }
+    }
+
+    // Disconnect from database
+    protected void disconnect() throws SQLException {
+        if (jdbcConnection != null && !jdbcConnection.isClosed()) {
+            jdbcConnection.close();
+        }
+    }
+
+    // Add Appointment
+    public boolean addAppointment(Appointment appointment) throws SQLException {
+        String sql = "INSERT INTO appointments (customer_name, service, appointment_date, status, notes, created_at) " +
+                     "VALUES (?, ?, ?, ?, ?, ?)";
+        connect();
+
+        try (PreparedStatement statement = jdbcConnection.prepareStatement(sql)) {
+            statement.setString(1, appointment.getCustomerName());
+            statement.setString(2, appointment.getService());
+            statement.setTimestamp(3, appointment.getAppointmentDate());
+            statement.setString(4, appointment.getStatus());
+            statement.setString(5, appointment.getNotes());
+            statement.setTimestamp(6, appointment.getCreatedAt());
+
+            int rowsInserted = statement.executeUpdate();
+            return rowsInserted > 0;
+        } finally {
+            disconnect();
+        }
+    }
+
+    // Update Appointment
+    public boolean updateAppointment(Appointment appointment) throws SQLException {
+        String sql = "UPDATE appointments SET customer_name = ?, service = ?, appointment_date = ?, " +
+                     "status = ?, notes = ? WHERE appointment_id = ?";
+        connect();
+
+        try (PreparedStatement statement = jdbcConnection.prepareStatement(sql)) {
+            statement.setString(1, appointment.getCustomerName());
+            statement.setString(2, appointment.getService());
+            statement.setTimestamp(3, appointment.getAppointmentDate());
+            statement.setString(4, appointment.getStatus());
+            statement.setString(5, appointment.getNotes());
+            statement.setInt(6, appointment.getAppointmentId());
+
+            int rowsUpdated = statement.executeUpdate();
+            return rowsUpdated > 0;
+        } finally {
+            disconnect();
+        }
+    }
+
+    // Delete Appointment
+    public boolean deleteAppointment(int appointmentId) throws SQLException {
+        String sql = "DELETE FROM appointments WHERE appointment_id = ?";
+        connect();
+
+        try (PreparedStatement statement = jdbcConnection.prepareStatement(sql)) {
+            statement.setInt(1, appointmentId);
+
+            int rowsDeleted = statement.executeUpdate();
+            return rowsDeleted > 0;
+        } finally {
+            disconnect();
+        }
+    }
+
+    // Get Appointment by ID
+    public Appointment getAppointment(int appointmentId) throws SQLException {
+        String sql = "SELECT * FROM appointments WHERE appointment_id = ?";
+        connect();
+
+        try (PreparedStatement statement = jdbcConnection.prepareStatement(sql)) {
+            statement.setInt(1, appointmentId);
+
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                String customerName = resultSet.getString("customer_name");
+                String service = resultSet.getString("service");
+                Timestamp appointmentDate = resultSet.getTimestamp("appointment_date");
+                String status = resultSet.getString("status");
+                String notes = resultSet.getString("notes");
+                Timestamp createdAt = resultSet.getTimestamp("created_at");
+
+                return new Appointment(appointmentId, customerName, service, appointmentDate, status, notes, createdAt);
+            }
+        } finally {
+            disconnect();
+        }
+        return null;
+    }
+
+    // Get All Appointments
+    public List<Appointment> getAllAppointments() throws SQLException {
+        List<Appointment> appointments = new ArrayList<>();
+        String sql = "SELECT * FROM appointments";
+        connect();
+
+        try (Statement statement = jdbcConnection.createStatement()) {
+            ResultSet resultSet = statement.executeQuery(sql);
+
+            while (resultSet.next()) {
+                int appointmentId = resultSet.getInt("appointment_id");
+                String customerName = resultSet.getString("customer_name");
+                String service = resultSet.getString("service");
+                Timestamp appointmentDate = resultSet.getTimestamp("appointment_date");
+                String status = resultSet.getString("status");
+                String notes = resultSet.getString("notes");
+                Timestamp createdAt = resultSet.getTimestamp("created_at");
+
+                Appointment appointment = new Appointment(appointmentId, customerName, service, appointmentDate, status, notes, createdAt);
+                appointments.add(appointment);
+            }
+        } finally {
+            disconnect();
+        }
+        return appointments;
+    }
+}

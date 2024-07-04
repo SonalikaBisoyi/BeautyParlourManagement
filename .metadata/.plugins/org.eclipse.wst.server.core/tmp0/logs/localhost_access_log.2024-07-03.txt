@@ -1,0 +1,11 @@
+127.0.0.1 - - [03/Jul/2024:23:35:55 +0530] "GET / HTTP/1.1" 404 752
+127.0.0.1 - - [03/Jul/2024:23:39:22 +0530] "GET / HTTP/1.1" 404 752
+0:0:0:0:0:0:0:1 - - [03/Jul/2024:23:39:37 +0530] "GET /BeautyParlourManagement/ HTTP/1.1" 200 1225
+0:0:0:0:0:0:0:1 - - [03/Jul/2024:23:39:37 +0530] "GET /favicon.ico HTTP/1.1" 404 763
+0:0:0:0:0:0:0:1 - - [03/Jul/2024:23:39:44 +0530] "GET /BeautyParlourManagement/register.jsp HTTP/1.1" 200 1913
+0:0:0:0:0:0:0:1 - - [03/Jul/2024:23:40:11 +0530] "POST /BeautyParlourManagement/auth/register HTTP/1.1" 500 2482
+0:0:0:0:0:0:0:1 - - [03/Jul/2024:23:44:16 +0530] "GET /BeautyParlourManagement/login.jsp HTTP/1.1" 200 1693
+0:0:0:0:0:0:0:1 - - [03/Jul/2024:23:46:33 +0530] "POST /BeautyParlourManagement/auth/login HTTP/1.1" 302 -
+0:0:0:0:0:0:0:1 - - [03/Jul/2024:23:46:34 +0530] "GET /BeautyParlourManagement/admin/dashboard.jsp HTTP/1.1" 200 1336
+0:0:0:0:0:0:0:1 - - [03/Jul/2024:23:46:34 +0530] "GET /BeautyParlourManagement/assets/css/styles.css HTTP/1.1" 404 809
+0:0:0:0:0:0:0:1 - - [03/Jul/2024:23:46:34 +0530] "GET /BeautyParlourManagement/assets/js/scripts.js HTTP/1.1" 404 808

@@ -1,0 +1,43 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8" %>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="../assets/css/styles.css"> <!-- Adjust path as needed -->
+</head>
+<body>
+    <header>
+        <h1>Admin Dashboard</h1>
+        <nav>
+            <ul>
+                <li><a href="manageStaff.jsp">Manage Staff</a></li>
+                <li><a href="viewAppointments.jsp">View Appointments</a></li>
+                <li><a href="viewFeedback.jsp">View Feedback</a></li>
+                <li><a href="<c:url value='/logout' />">Logout</a></li> <!-- Example logout link -->
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section id="staff">
+            <h2>Manage Staff</h2>
+            <!-- List of staff members can be displayed here -->
+        </section>
+
+        <section id="appointments">
+            <h2>Appointments</h2>
+            <!-- List of appointments can be displayed here -->
+        </section>
+
+        <section id="feedback">
+            <h2>Feedback</h2>
+            <!-- List of feedback submissions can be displayed here -->
+        </section>
+    </main>
+
+    <script src="../assets/js/scripts.js"></script> <!-- Adjust path as needed -->
+</body>
+</html>

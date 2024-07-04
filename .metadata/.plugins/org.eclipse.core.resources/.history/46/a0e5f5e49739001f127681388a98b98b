@@ -1,0 +1,66 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard</title>
+    <!-- Include any necessary CSS or JavaScript files here -->
+    <style>
+        /* Your CSS styles here */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .dashboard-item {
+            margin-bottom: 10px;
+        }
+        .dashboard-item a {
+            display: block;
+            padding: 10px;
+            background-color: #007bff;
+            color: #fff;
+            text-decoration: none;
+            text-align: center;
+            border-radius: 4px;
+        }
+        .dashboard-item a:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome, Admin!</h1>
+        <div class="dashboard-item">
+            <a href="${pageContext.request.contextPath}/admin/manageAppointments">Manage Appointments</a>
+        </div>
+        <div class="dashboard-item">
+            <a href="${pageContext.request.contextPath}/adm/manageStaff.jsp">Manage Staff</a>
+        </div>
+        <div class="dashboard-item">
+            <a href="${pageContext.request.contextPath}/adm/manageServices.jsp">Manage Services</a>
+        </div>
+        <div class="dashboard-item">
+            <a href="${pageContext.request.contextPath}/admin/manageCustomers">Manage Customers</a>
+        </div>
+        <div class="dashboard-item">
+            <a href="${pageContext.request.contextPath}/admin/viewFeedback">View Feedback</a>
+        </div>
+        <!-- Additional content or links as needed -->
+    </div>
+</body>
+</html>
